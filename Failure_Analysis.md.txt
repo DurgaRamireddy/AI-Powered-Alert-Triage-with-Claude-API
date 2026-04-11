@@ -1,0 +1,64 @@
+# AI Triage Failure Analysis
+
+## Purpose
+This document records cases where the AI triage engine produced incorrect, overconfident, or misleading output. These findings demonstrate why AI-assisted SOC triage requires human analyst oversight - the AI is a force multiplier, not a replacement.
+
+---
+
+## Case 1 - Encryption Type Hallucination (test-003)
+
+**Alert:** EventCode 4769, jsmith requesting TGS for MSSQLSvc SPN, encryption type 0x12, source IP 192.168.255.132
+
+**AI Output:** Likely True Positive, High severity, High MITRE confidence
+
+**AI Analyst Notes (verbatim):** 
+"RC4 encryption type (0x12) is a key indicator as modern environments typically use AES"
+
+**What went wrong:**  
+The AI inverted the encryption type mapping. 0x12 is AES-256 - the strongest Kerberos encryption and a sign of legitimate traffic. RC4 is 0x17, which is the actual Kerberoasting indicator. The AI stated this backwards with High confidence, which would cause a false escalation in a real SOC.
+
+**Correct analyst verdict:** False Positive  
+A named SQL Server SPN using AES-256 encryption is normal domain behavior. No escalation warranted.
+
+**Lesson:** AI confidence scores cannot be trusted on technical detail accuracy. Always verify encryption type mappings manually:
+- 0x17 = RC4 = Kerberoasting indicator
+- 0x12 = AES-256 = Normal, secure traffic
+- 0x11 = AES-128 = Normal, secure traffic
+
+---
+
+## Case 2 - Appropriate Uncertainty (test-001)
+
+**Alert:** Completely empty alert — null source host, unknown account, no encryption type, no raw message
+
+**AI Output:** Low severity, Requires Investigation, Low confidence
+
+**What happened:**  
+The AI correctly recognized it had no data to work with and lowered its confidence accordingly. It did not fabricate IOCs or invent context.
+
+**Lesson:** The AI handles missing data gracefully when fields are explicitly null. It does not hallucinate account names or IP addresses into empty fields.
+
+---
+
+## Case 3 - Vague Data, Reasonable but Unactionable (test-002)
+
+**Alert:** EventCode 4624, administrator account, Logon Type 3, raw message "User logged on."
+
+**AI Output:** High severity, Requires Investigation, Medium confidence
+
+**What happened:**  
+The AI correctly flagged administrator + Logon Type 3 as suspicious but couldn't identify the specific technique. The output was technically reasonable but gave no actionable next steps beyond "investigate further."
+
+**Lesson:** Stripped or vague log data produces vague AI output. Alert quality directly determines triage quality. Garbage in, garbage out applies to AI just as much as traditional SIEM rules.
+
+---
+
+## Summary of Findings
+
+| Case | AI Verdict | Correct Verdict | Failure Type |
+|------|-----------|-----------------|--------------|
+| test-001 | Requires Investigation | Requires Investigation | None — handled well |
+| test-002 | Requires Investigation | Requires Investigation | None — acceptable |
+| test-003 | Likely True Positive | False Positive | Hallucination — wrong encryption mapping with High confidence |
+
+**Overall finding:** The AI performs well when data is clearly present or clearly absent. It fails when partial data exists and it fills gaps with incorrect technical assumptions stated confidently.
