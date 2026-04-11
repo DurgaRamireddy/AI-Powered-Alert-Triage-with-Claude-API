@@ -299,7 +299,34 @@ The AI inverted the encryption type mapping. `0x12` is AES-256 - the strongest K
 > AI confidence scores cannot be trusted on technical detail accuracy. The model performed well when data was clearly present or clearly absent. It failed when partial data existed and it filled gaps with incorrect technical assumptions stated confidently. Human analyst review is not optional - it is a requirement.
 
 ---
+## Screenshots
 
+### Alert Queue & AI Triage
+![SOC Triage Dashboard](AI%20Alert%20Triage%2001.png)
+![AI Triage Detail](AI%20Alert%20Triage%2002.png)
+
+### Dashboard - AI vs Manual Analyst Comparison
+![High Severity Comparison](AI%20vs%20Manual%20-%20High%20Severity.png)
+![Medium Severity Comparison](AI%20vs%20Manual%20-%20Medium%20Severity.png)
+![Low Severity Comparison](AI%20vs%20Manual%20-%20Low%20Severity.png)
+![Dashboard Overview](SOC%20Triage%20Dashboard%20-%20AI%20vs%20Manual.png)
+
+### Triage Results - JSON Output
+![Triage Results 1](Triage%20Results%20-%20JSON-01.png)
+![Triage Results 2](Triage%20Results%20-%20JSON-02.png)
+
+### AI Failure Testing
+![Test Failures](Test%20Failures%20-%20AI.png)
+
+---
+
+## AI Failure Analysis
+
+Full documentation of AI hallucination cases, test methodology, and production recommendations:
+
+📄 [failure_analysis.md](failure_analysis.md)
+
+---
 ## Detection Logic - Analyst Reference
 
 ### Kerberoasting (T1558.003)
