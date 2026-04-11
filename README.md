@@ -348,10 +348,10 @@ The AI inverted the encryption type mapping. `0x12` is AES-256 - the strongest K
 
 | Resource | Cost |
 |---|---|
-| Anthropic API (38 alerts + failure testing) | ~$1.50 |
+| Anthropic API (38 alerts + failure testing) | ~$0.58 |
 | Splunk Enterprise (free trial) | $0 |
 | VMware Workstation | existing license |
-| Total project cost | < $2 |
+| Total project cost | < $1 |
 
 ---
 
