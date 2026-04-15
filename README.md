@@ -10,6 +10,14 @@
 
 ---
 
+
+## TL;DR
+
+Built an AI-powered SOC triage system that analyzes Splunk alerts using Claude API, compares AI vs human analyst decisions, and identifies hallucination risks in real-world security triage scenarios.
+
+---
+
+
 ## Overview
 
 This project builds an end-to-end AI-assisted SOC triage pipeline. Real attack-generated SIEM alerts from a home Active Directory lab are normalized, fed through the Claude API acting as a Tier 1 SOC analyst, and displayed in a custom analyst dashboard alongside manual triage for AI vs human comparison.
@@ -36,10 +44,10 @@ The goal was to answer a real SOC question: **can an AI model reliably triage SI
 │                                                                 │
 │  ┌──────────────────────┐      ┌──────────────────────────────┐ │
 │  │  Windows Server 2022 │      │       Ubuntu 22.04           │ │
-│  │  WIN-I4UHLQF702E     │      │   Splunk Enterprise 9.x      │ │
-│  │  DC: lab.local       │      │   192.168.255.131            │ │
-│  │  192.168.255.130     │      │   port 8000 (web)            │ │
-│  │  AD DS / DNS / KDC   │      │   port 9997 (forwarder)      │ │
+│  │  WIN-I4UHLQF702E     │      │         Splunk Web           │ │
+│  │  DC: lab.local       │      │         Forwarder            │ │
+│  │  192.168.255.130     │      │      (internal services)     │ │
+│  │  AD DS / DNS / KDC   │      │                              │ │
 │  └──────────────────────┘      └──────────────────────────────┘ │
 │            │                                 ▲                  │
 │            │ Domain Auth                     │ Windows Logs     │
@@ -57,7 +65,7 @@ The goal was to answer a real SOC question: **can an AI model reliably triage SI
 │  └──────────────────────┘                                       │
 └─────────────────────────────────────────────────────────────────┘
                           │
-                          │ Claude API (claude-opus-4.5)
+                          │ Claude API (latest model)
                           ▼
               ┌───────────────────────┐
               │   Python Triage       │
@@ -208,7 +216,7 @@ client = anthropic.Anthropic()
 
 def triage_alert(alert: dict) -> dict:
     message = client.messages.create(
-        model="claude-opus-4-5",
+        model="Claude API (latest model)",
         max_tokens=1024,
         system=SYSTEM_PROMPT,
         messages=[{
