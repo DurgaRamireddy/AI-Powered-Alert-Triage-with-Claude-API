@@ -196,7 +196,7 @@ structured triage reports. For every alert, respond ONLY with valid JSON:
 
 Rules:
 - Base analysis strictly on alert fields provided
-- Lower confidence when fields are null or missing — never invent data
+- Lower confidence when fields are null or missing - never invent data
 - Never fabricate IOCs, IPs, or account names not in the alert
 - Kerberoasting = T1558.003. AS-REP Roasting = T1558.004.
   Lateral Movement = T1550.002 or T1021
@@ -299,7 +299,7 @@ The AI inverted the encryption type mapping. `0x12` is AES-256 - the strongest K
 | Test | AI Verdict | Failure? | Notes |
 |---|---|---|---|
 | test-001 (empty) | Low / Requires Investigation | ✅ None | Correctly lowered confidence with no data |
-| test-002 (vague) | High / Requires Investigation | ✅ None | Reasonable but unactionable — garbage in, garbage out |
+| test-002 (vague) | High / Requires Investigation | ✅ None | Reasonable but unactionable - garbage in, garbage out |
 | test-003 (AES SPN) | High / Likely True Positive | ❌ Hallucination | Wrong encryption mapping stated with High confidence |
 
 ### Key Finding
