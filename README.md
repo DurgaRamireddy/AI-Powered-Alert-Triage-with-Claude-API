@@ -214,22 +214,81 @@ from dotenv import load_dotenv
 load_dotenv()
 client = anthropic.Anthropic()
 
+SYSTEM_PROMPT = """
+You are a Tier 1 SOC analyst assistant. You analyze SIEM alerts and produce structured triage reports.
+For every alert, respond ONLY with valid JSON in this exact schema — no markdown, no preamble:
+
+{
+  "severity": "Critical | High | Medium | Low",
+  "verdict": "True Positive | Likely True Positive | Requires Investigation | Likely False Positive",
+  "mitre_tactic": "TA00XX - Tactic Name",
+  "mitre_technique": "T1XXX - Technique Name",
+  "mitre_confidence": "High | Medium | Low",
+  "false_positive_probability": integer between 0 and 100,
+  "escalate": true or false,
+  "escalation_reason": "string or null",
+  "evidence_summary": "2-3 sentence analyst summary of what this alert shows",
+  "recommended_next_steps": ["step 1", "step 2", "step 3"],
+  "analyst_notes": "any caveats, confidence gaps, or missing data"
+}
+
+Rules:
+- Base your analysis strictly on the alert fields provided.
+- If a field is null or missing, lower your confidence accordingly — do not invent data.
+- Never fabricate IOCs, IP addresses, or account names not present in the alert.
+- Kerberoasting = T1558.003. AS-REP Roasting = T1558.004. Lateral Movement = T1550.002 or T1021.
+"""
+
 def triage_alert(alert: dict) -> dict:
+    alert_text = json.dumps(alert, indent=2)
+
     message = client.messages.create(
-        model="Claude API (latest model)",
+        model="claude-opus-4-5",
         max_tokens=1024,
         system=SYSTEM_PROMPT,
         messages=[{
             "role": "user",
-            "content": f"Triage this SIEM alert:\n\n{json.dumps(alert, indent=2)}"
+            "content": f"Triage this SIEM alert:\n\n{alert_text}"
         }]
     )
-    raw = message.content[0].text
-    clean = raw.replace("```json", "").replace("```", "").strip()
+
+    raw_response = message.content[0].text
+    clean = raw_response.replace("```json", "").replace("```", "").strip()
+
     try:
-        return json.loads(clean)
+        triage_result = json.loads(clean)
     except json.JSONDecodeError:
-        return {"error": "Failed to parse AI response", "raw": raw}
+        triage_result = {
+            "error": "Failed to parse AI response",
+            "raw": raw_response
+        }
+
+    return {
+        "alert": alert,
+        "ai_triage": triage_result,
+        "model": "claude-opus-4-5"
+    }
+
+if __name__ == "__main__":
+    with open("alerts/normalized_alerts.json") as f:
+        alerts = json.load(f)
+
+    print(f"Loaded {len(alerts)} alerts. Starting triage...\n")
+
+    results = []
+    for i, alert in enumerate(alerts):
+        print(f"[{i+1}/{len(alerts)}] Triaging alert_id: {alert.get('alert_id')} | type: {alert.get('attack_type')}")
+        result = triage_alert(alert)
+        severity = result["ai_triage"].get("severity", "ERROR")
+        verdict = result["ai_triage"].get("verdict", "ERROR")
+        print(f"         → Severity: {severity} | Verdict: {verdict}")
+        results.append(result)
+        time.sleep(0.5)
+
+    with open("results/triage_results.json", "w") as f:
+        json.dump(results, f, indent=2)
+
+    print(f"\nDone. {len(results)} alerts triaged → results/triage_results.json")
 ```
 
 ### AI Triage Results - Summary
