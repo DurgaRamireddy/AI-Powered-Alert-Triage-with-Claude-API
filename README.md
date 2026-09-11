@@ -8,6 +8,10 @@
 
 > ⚠️ **Disclaimer:** This project was conducted entirely in an isolated VMware lab environment for educational purposes only. No real systems, networks, or individuals were targeted. All IP addresses are private VMware addresses that exist solely within the local lab.
 
+> See [LICENSE](#license) - This repo is public for viewing and reference; code and findings are not licensed for reuse without attribution. 
+
+--- 
+
 ---
 
 
@@ -456,6 +460,13 @@ Full documentation of AI hallucination cases, test methodology, and production r
 - [Splunk SPL Reference](https://docs.splunk.com/Documentation/Splunk/latest/SearchReference)
 - [Windows Security Event IDs](https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/)
 - [Impacket Suite](https://github.com/fortra/impacket)
+
+---
+## License
+
+No open-source license is granted. This repository is publicly available for viewing and reference; all rights to the original code and materials are reserved by the author.
+
+Findings, analysis, and written commentary in this repository (including documented failure modes, architectural conclusions, and the synthesis connecting them) are the author's original research. They are not licensed for reuse, redistribution, or incorporation into other work (including academic research, publications, or derivative projects) without explicit attribution to the author.
 
 ---
 
